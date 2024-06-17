@@ -23,52 +23,64 @@ public class ExchangeRatesDataAccess implements ActionsExchangeRates<ExchangeRat
     public List<ExchangeRate> getAll() throws SQLException {
         List<ExchangeRate> exchangeRates = new ArrayList<>();
 
-        DBManager.execute(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(sqlRequestAllExchangeRates);
-                 ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Currency baseCurrency = getPrepareCurrency(rs, "BaseID", "BaseCode", "BaseFullName", "BaseSign");
-                    Currency targetCurrency = getPrepareCurrency(rs, "TargetID", "TargetCode", "TargetFullName",
-                            "TargetSign");
+        DBManager.execute(
+                conn -> {
+                    try (PreparedStatement ps = conn.prepareStatement(sqlRequestAllExchangeRates);
+                            ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            Currency baseCurrency =
+                                    getPrepareCurrency(
+                                            rs, "BaseID", "BaseCode", "BaseFullName", "BaseSign");
+                            Currency targetCurrency =
+                                    getPrepareCurrency(
+                                            rs,
+                                            "TargetID",
+                                            "TargetCode",
+                                            "TargetFullName",
+                                            "TargetSign");
 
-                    int ID = rs.getInt("Id");
-                    BigDecimal rate = rs.getBigDecimal("Rate");
+                            int ID = rs.getInt("Id");
+                            BigDecimal rate = rs.getBigDecimal("Rate");
 
-                    exchangeRates.add(new ExchangeRate(ID, baseCurrency, targetCurrency, rate));
-                }
-            }
-        });
+                            exchangeRates.add(
+                                    new ExchangeRate(ID, baseCurrency, targetCurrency, rate));
+                        }
+                    }
+                });
         return exchangeRates;
     }
 
     @Override
-    public ExchangeRate getExchangeRateByCodes(Currency baseCurrency, Currency targetCurrency) throws SQLException {
+    public ExchangeRate getExchangeRateForPair(Currency baseCurrency, Currency targetCurrency)
+            throws SQLException {
         final ExchangeRate[] exchangeRate = {null};
-        String sql = "SELECT * FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
+        String sql =
+                "SELECT * FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
 
-        DBManager.execute(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setInt(1, baseCurrency.Id());
-                ps.setInt(2, targetCurrency.Id());
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        int ID = rs.getInt("Id");
-                        BigDecimal rate = rs.getBigDecimal("Rate");
+        DBManager.execute(
+                conn -> {
+                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setInt(1, baseCurrency.Id());
+                        ps.setInt(2, targetCurrency.Id());
+                        try (ResultSet rs = ps.executeQuery()) {
+                            while (rs.next()) {
+                                int ID = rs.getInt("Id");
+                                BigDecimal rate = rs.getBigDecimal("Rate");
 
-                        exchangeRate[0] = new ExchangeRate(ID, baseCurrency, targetCurrency, rate);
+                                exchangeRate[0] =
+                                        new ExchangeRate(ID, baseCurrency, targetCurrency, rate);
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
         return exchangeRate[0];
     }
 
     @Override
-    public void addExchangeRate(ExchangeRate exchangeRate) {
+    public void addExchangeRate(ExchangeRate exchangeRate) {}
 
-    }
-
-    private Currency getPrepareCurrency(ResultSet rs, String ID, String code, String fullName, String sign)
+    private Currency getPrepareCurrency(
+            ResultSet rs, String ID, String code, String fullName, String sign)
             throws SQLException {
 
         int baseID = rs.getInt(ID);
