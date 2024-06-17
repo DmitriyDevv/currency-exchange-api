@@ -74,7 +74,7 @@ public class ExchangeRatesService {
             BigDecimal reverseRate = calculateReverseCourse(reverseExchangeRate.rate());
 
             return new ExchangeRate(
-                    reverseExchangeRate.ID(), baseCurrency, targetCurrency, reverseRate);
+                    reverseExchangeRate.id(), baseCurrency, targetCurrency, reverseRate);
         }
 
         return null;
