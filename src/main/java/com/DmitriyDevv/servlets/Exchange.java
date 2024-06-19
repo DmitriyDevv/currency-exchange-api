@@ -2,7 +2,8 @@ package com.DmitriyDevv.servlets;
 
 import com.DmitriyDevv.dto.ResponseData;
 import com.DmitriyDevv.exceptions.RequestException;
-import com.DmitriyDevv.service.CurrenciesService;
+import com.DmitriyDevv.service.ExchangeService;
+
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,11 +19,11 @@ public class Exchange extends HttpServlet {
         try {
             String from = request.getParameter("from");
             String to = request.getParameter("to");
-            String amount = request.getParameter("amount");
+            double amount = Double.parseDouble(request.getParameter("amount"));
             ServletHelper.sendResponse(
                     response,
                     new ResponseData<>(
-                            CurrenciesService.getCurrencyByCode(currencyCode),
+                            ExchangeService.getExchange(from, to, amount),
                             HttpServletResponse.SC_OK));
 
         } catch (RequestException e) {

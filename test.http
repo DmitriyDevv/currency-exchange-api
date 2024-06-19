@@ -14,3 +14,6 @@ http://localhost:8080/currency_exchange_api_war/exchangeRate/RUBUSD
 
 ###
 http://localhost:8080/currency_exchange_api_war/exchangeRate/RUBEUR
+
+###
+http://localhost:8080/currency_exchange_api_war/exchange?from=USD&to=RUB&amount=150
