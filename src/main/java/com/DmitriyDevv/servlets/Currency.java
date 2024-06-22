@@ -3,6 +3,7 @@ package com.DmitriyDevv.servlets;
 import com.DmitriyDevv.dto.ResponseData;
 import com.DmitriyDevv.exceptions.RequestException;
 import com.DmitriyDevv.service.CurrenciesService;
+
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,13 +18,18 @@ public class Currency extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         try {
             String currencyCode = request.getPathInfo().replace("/", "");
-            ServletHelper.sendResponse(response,
-                    new ResponseData<>(CurrenciesService.getCurrencyByCode(currencyCode), HttpServletResponse.SC_OK));
+            ServletHelper.sendResponse(
+                    response,
+                    new ResponseData<>(
+                            CurrenciesService.getCurrencyByCode(currencyCode),
+                            HttpServletResponse.SC_OK));
         } catch (RequestException e) {
             ServletHelper.sendResponse(response, new ResponseData<>(e.getMessage(), e.getCode()));
         } catch (SQLException e) {
-            ServletHelper.sendResponse(response, new ResponseData<>("Database error",
-                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
+            ServletHelper.sendResponse(
+                    response,
+                    new ResponseData<>(
+                            "Database error", HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
         }
     }
 }

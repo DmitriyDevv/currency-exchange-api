@@ -17,3 +17,14 @@ http://localhost:8080/currency_exchange_api_war/exchangeRate/RUBEUR
 
 ###
 http://localhost:8080/currency_exchange_api_war/exchange?from=USD&to=RUB&amount=150
+
+###
+http://localhost:8080/currency_exchange_api_war/exchange?from=USD&to=AUD&amount=10
+
+###
+POST http://localhost:8080/currency_exchange_api_war/currencies
+Content-Type: application/x-www-form-urlencoded
+
+name = Aussie dollar &
+code = AUD &
+sign = $

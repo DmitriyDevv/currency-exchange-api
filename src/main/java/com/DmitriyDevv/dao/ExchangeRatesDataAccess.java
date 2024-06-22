@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExchangeRatesDataAccess implements ActionsExchangeRates<ExchangeRate> {
+public class ExchangeRatesDataAccess {
 
     private final String sqlRequestAllExchangeRates =
             "SELECT tBase.ID as BaseID, tBase.Code as BaseCode, tBase.FullName as BaseFullName, tBase.Sign as BaseSign, "
@@ -19,7 +19,6 @@ public class ExchangeRatesDataAccess implements ActionsExchangeRates<ExchangeRat
                     + "FROM Currencies as tBase INNER JOIN ExchangeRates as tExch on tBase.ID = tExch.BaseCurrencyId "
                     + "                         INNER JOIN Currencies as tTarget on tTarget.ID = tExch.TargetCurrencyId ";
 
-    @Override
     public List<ExchangeRate> getAll() throws SQLException {
         List<ExchangeRate> exchangeRates = new ArrayList<>();
 
@@ -50,7 +49,6 @@ public class ExchangeRatesDataAccess implements ActionsExchangeRates<ExchangeRat
         return exchangeRates;
     }
 
-    @Override
     public ExchangeRate getExchangeRateForPair(Currency baseCurrency, Currency targetCurrency)
             throws SQLException {
         final ExchangeRate[] exchangeRate = {null};
@@ -76,8 +74,20 @@ public class ExchangeRatesDataAccess implements ActionsExchangeRates<ExchangeRat
         return exchangeRate[0];
     }
 
-    @Override
-    public void addExchangeRate(ExchangeRate exchangeRate) {}
+    public void addExchangeRate(int baseCurrencyId, int targetCurrencyId, BigDecimal rate)
+            throws SQLException {
+        String sql =
+                "INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES (?, ?, ?)";
+
+        DBManager.execute(
+                conn -> {
+                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setInt(1, baseCurrencyId);
+                        ps.setInt(2, targetCurrencyId);
+                        ps.setBigDecimal(3, rate);
+                    }
+                });
+    }
 
     private Currency getPrepareCurrency(
             ResultSet rs, String ID, String code, String fullName, String sign)

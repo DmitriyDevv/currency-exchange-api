@@ -23,6 +23,12 @@ public class ExchangeRatesService {
         return exchangeRatesDataAccess.getAll();
     }
 
+    public static ExchangeRate getExchangeRate(String baseCurrencyCode, String targetCurrencyCode)
+            throws SQLException {
+        String currencyPair = baseCurrencyCode + targetCurrencyCode;
+        return getExchangeRate(currencyPair);
+    }
+
     public static ExchangeRate getExchangeRate(String currencyPair) throws SQLException {
         if (currencyPair.length() != 6) {
             throw new RequestException(
@@ -63,6 +69,23 @@ public class ExchangeRatesService {
                     "The exchange rate for the pair was not found",
                     HttpServletResponse.SC_NOT_FOUND);
         }
+    }
+
+    public static void addExchangeRate(
+            String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate)
+            throws SQLException {
+        if (baseCurrencyCode.isEmpty()
+                || targetCurrencyCode.isEmpty()
+                || rate == null
+                || rate.compareTo(BigDecimal.ZERO) < 0) {
+            throw new RequestException(
+                    "The required form field is missing", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        Currency baseCurrency = CurrenciesService.getCurrencyByCode(baseCurrencyCode);
+        Currency targetCurrency = CurrenciesService.getCurrencyByCode(targetCurrencyCode);
+
+        exchangeRatesDataAccess.addExchangeRate(baseCurrency.Id(), targetCurrency.Id(), rate);
     }
 
     private static ExchangeRate getReverseExchangeRate(

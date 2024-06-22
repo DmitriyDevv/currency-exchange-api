@@ -33,7 +33,7 @@ public class DBManager {
                 conn.commit();
             } catch (SQLException e) {
                 conn.rollback();
-                throw new SQLException();
+                throw e;
             }
         }
     }

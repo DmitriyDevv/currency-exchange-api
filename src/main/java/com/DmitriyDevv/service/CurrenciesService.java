@@ -6,6 +6,8 @@ import com.DmitriyDevv.exceptions.RequestException;
 
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.sqlite.SQLiteErrorCode;
+
 import java.sql.SQLException;
 import java.util.List;
 
@@ -31,5 +33,25 @@ public class CurrenciesService {
         }
 
         return currency;
+    }
+
+    public static void addCurrency(String name, String code, String sign) throws SQLException {
+        if (name.isEmpty() || code.isEmpty() || sign.isEmpty()) {
+            throw new RequestException(
+                    "The required form field is missing", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        try {
+            Currency newCurrency = new Currency(0, name, code, sign);
+            currencies.addCurrency(newCurrency);
+        } catch (SQLException e) {
+            if (e.getErrorCode() == SQLiteErrorCode.SQLITE_CONSTRAINT.code) {
+                throw new RequestException(
+                        "A currency with this code already exists",
+                        HttpServletResponse.SC_CONFLICT);
+            } else {
+                throw new SQLException();
+            }
+        }
     }
 }
