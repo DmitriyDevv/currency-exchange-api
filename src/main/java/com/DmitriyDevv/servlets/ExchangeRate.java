@@ -1,6 +1,7 @@
 package com.DmitriyDevv.servlets;
 
 import com.DmitriyDevv.dto.ResponseData;
+import com.DmitriyDevv.exceptions.RequestException;
 import com.DmitriyDevv.service.ExchangeRatesService;
 
 import jakarta.servlet.ServletException;
@@ -20,7 +21,7 @@ public class ExchangeRate extends HttpServlet {
             throws ServletException, IOException {
         String method = request.getMethod();
         if (method.equalsIgnoreCase("PATCH")) {
-            doPatch(request, response);
+            doPost(request, response);
         } else {
             super.service(request, response);
         }
@@ -35,16 +36,26 @@ public class ExchangeRate extends HttpServlet {
                     new ResponseData<>(
                             ExchangeRatesService.getExchangeRate(currencyPair),
                             HttpServletResponse.SC_OK));
-        } catch (SQLException e) {
-            ServletHelper.sendResponse(
-                    response,
-                    new ResponseData<>(
-                            "Database error", HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
+        } catch (RequestException | SQLException e) {
+            ServletHelper.handleException(response, e);
         }
     }
 
-    private void doPatch(HttpServletRequest request, HttpServletResponse response) {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         String currencyPair = getCurrencyPair(request);
+        String newRate = request.getParameter("rate");
+
+        try {
+            ExchangeRatesService.updateRate(currencyPair, newRate);
+            ServletHelper.sendResponse(
+                    response,
+                    new ResponseData<>(
+                            ExchangeRatesService.getExchangeRate(currencyPair),
+                            HttpServletResponse.SC_OK));
+        } catch (RequestException | SQLException e) {
+            ServletHelper.handleException(response, e);
+        }
     }
 
     private String getCurrencyPair(HttpServletRequest request) {

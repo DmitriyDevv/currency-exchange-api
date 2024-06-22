@@ -19,6 +19,21 @@ public class ExchangeRatesDataAccess {
                     + "FROM Currencies as tBase INNER JOIN ExchangeRates as tExch on tBase.ID = tExch.BaseCurrencyId "
                     + "                         INNER JOIN Currencies as tTarget on tTarget.ID = tExch.TargetCurrencyId ";
 
+    public void updateRate(int baseCurrencyId, int targetCurrencyId, BigDecimal rate)
+            throws SQLException {
+        String sql =
+                "UPDATE exchange_rates SET rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
+
+        DBManager.execute(
+                conn -> {
+                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setBigDecimal(1, rate);
+                        ps.setInt(2, baseCurrencyId);
+                        ps.setInt(3, targetCurrencyId);
+                    }
+                });
+    }
+
     public List<ExchangeRate> getAll() throws SQLException {
         List<ExchangeRate> exchangeRates = new ArrayList<>();
 

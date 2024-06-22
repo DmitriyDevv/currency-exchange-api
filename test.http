@@ -28,3 +28,9 @@ Content-Type: application/x-www-form-urlencoded
 name = Aussie dollar &
 code = AUD &
 sign = $
+
+###
+PATCH http://localhost:8080/currency_exchange_api_war/exchangeRate/USDRUB
+Content-Type: application/x-www-form-urlencoded
+
+rate = 88.98

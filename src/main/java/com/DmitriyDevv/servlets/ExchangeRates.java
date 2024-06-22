@@ -1,6 +1,7 @@
 package com.DmitriyDevv.servlets;
 
 import com.DmitriyDevv.dto.ResponseData;
+import com.DmitriyDevv.exceptions.RequestException;
 import com.DmitriyDevv.service.ExchangeRatesService;
 
 import jakarta.servlet.annotation.WebServlet;
@@ -22,11 +23,8 @@ public class ExchangeRates extends HttpServlet {
                     new ResponseData<>(
                             ExchangeRatesService.getExchangeRatesList(),
                             HttpServletResponse.SC_OK));
-        } catch (SQLException e) {
-            ServletHelper.sendResponse(
-                    response,
-                    new ResponseData<>(
-                            "Database error", HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
+        } catch (RequestException | SQLException e) {
+            ServletHelper.handleException(response, e);
         }
     }
 
@@ -44,11 +42,8 @@ public class ExchangeRates extends HttpServlet {
                             ExchangeRatesService.getExchangeRate(
                                     baseCurrencyCode, targetCurrencyCode),
                             HttpServletResponse.SC_OK));
-        } catch (SQLException e) {
-            ServletHelper.sendResponse(
-                    response,
-                    new ResponseData<>(
-                            "Database error", HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
+        } catch (RequestException | SQLException e) {
+            ServletHelper.handleException(response, e);
         }
     }
 }

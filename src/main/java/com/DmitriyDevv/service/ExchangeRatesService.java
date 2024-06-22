@@ -88,6 +88,21 @@ public class ExchangeRatesService {
         exchangeRatesDataAccess.addExchangeRate(baseCurrency.Id(), targetCurrency.Id(), rate);
     }
 
+    public static void updateRate(String currencyPair, String newRate) throws SQLException {
+        ExchangeRate exchangeRate = getExchangeRate(currencyPair);
+
+        if (newRate == null || newRate.isEmpty()) {
+            throw new RequestException(
+                    "One of the fields is missing or incorrect",
+                    HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        exchangeRatesDataAccess.updateRate(
+                exchangeRate.baseCurrency().Id(),
+                exchangeRate.targetCurrency().Id(),
+                new BigDecimal(newRate));
+    }
+
     private static ExchangeRate getReverseExchangeRate(
             Currency targetCurrency, Currency baseCurrency) throws SQLException {
         ExchangeRate reverseExchangeRate =

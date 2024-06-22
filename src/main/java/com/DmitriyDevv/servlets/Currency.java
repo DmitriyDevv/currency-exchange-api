@@ -23,13 +23,8 @@ public class Currency extends HttpServlet {
                     new ResponseData<>(
                             CurrenciesService.getCurrencyByCode(currencyCode),
                             HttpServletResponse.SC_OK));
-        } catch (RequestException e) {
-            ServletHelper.sendResponse(response, new ResponseData<>(e.getMessage(), e.getCode()));
-        } catch (SQLException e) {
-            ServletHelper.sendResponse(
-                    response,
-                    new ResponseData<>(
-                            "Database error", HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
+        } catch (RequestException | SQLException e) {
+            ServletHelper.handleException(response, e);
         }
     }
 }
