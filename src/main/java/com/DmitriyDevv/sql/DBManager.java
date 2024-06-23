@@ -1,28 +1,39 @@
 package com.DmitriyDevv.sql;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBManager {
 
     private static final String DB_URL = "com/DmitriyDevv/db/CurrencyExchange.sqlite";
     private static final String DB_DRIVER = "jdbc:sqlite:";
+    private static final HikariDataSource dataSource;
 
-    public static Connection getConnection() throws SQLException {
+    static {
         try {
             ClassLoader classLoader = DBManager.class.getClassLoader();
             if (classLoader.getResource(DB_URL) != null) {
                 String dbUrl = DB_DRIVER + classLoader.getResource(DB_URL).getPath();
-                Class.forName("org.sqlite.JDBC");
-                return DriverManager.getConnection(dbUrl);
+                HikariConfig config = new HikariConfig();
+                config.setJdbcUrl(dbUrl);
+                config.setDriverClassName("org.sqlite.JDBC");
+                config.addDataSourceProperty("cachePrepStmts", "true");
+                config.addDataSourceProperty("prepStmtCacheSize", "250");
+                config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+                dataSource = new HikariDataSource(config);
             } else {
-                throw new SQLException();
+                throw new SQLException("Database URL not found");
             }
-
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new SQLException();
+        } catch (Exception e) {
+            throw new RuntimeException("Error initializing database connection pool", e);
         }
+    }
+
+    public static Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
     }
 
     public static void execute(Executor executor) throws SQLException {
