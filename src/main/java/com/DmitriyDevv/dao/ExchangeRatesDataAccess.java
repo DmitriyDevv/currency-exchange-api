@@ -22,7 +22,7 @@ public class ExchangeRatesDataAccess {
     public void updateRate(int baseCurrencyId, int targetCurrencyId, BigDecimal rate)
             throws SQLException {
         String sql =
-                "UPDATE exchange_rates SET rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
+                "UPDATE ExchangeRates SET rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
 
         DBManager.execute(
                 conn -> {
@@ -30,6 +30,7 @@ public class ExchangeRatesDataAccess {
                         ps.setBigDecimal(1, rate);
                         ps.setInt(2, baseCurrencyId);
                         ps.setInt(3, targetCurrencyId);
+                        ps.executeUpdate();
                     }
                 });
     }

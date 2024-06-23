@@ -10,8 +10,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 @WebServlet("/exchangeRate/*")
 public class ExchangeRate extends HttpServlet {
@@ -21,7 +24,7 @@ public class ExchangeRate extends HttpServlet {
             throws ServletException, IOException {
         String method = request.getMethod();
         if (method.equalsIgnoreCase("PATCH")) {
-            doPost(request, response);
+            doPatch(request, response);
         } else {
             super.service(request, response);
         }
@@ -41,10 +44,9 @@ public class ExchangeRate extends HttpServlet {
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+    protected void doPatch(HttpServletRequest request, HttpServletResponse response) {
         String currencyPair = getCurrencyPair(request);
-        String newRate = request.getParameter("rate");
+        String newRate = getParameters(request).get("rate");
 
         try {
             ExchangeRatesService.updateRate(currencyPair, newRate);
@@ -60,5 +62,28 @@ public class ExchangeRate extends HttpServlet {
 
     private String getCurrencyPair(HttpServletRequest request) {
         return request.getPathInfo().split("/")[1].toUpperCase();
+    }
+
+    private Map<String, String> getParameters(HttpServletRequest request) {
+        Map<String, String> parameters = new HashMap<>();
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = request.getReader()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String[] pairs = sb.toString().split("&");
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=");
+            if (keyValue.length == 2) {
+                parameters.put(keyValue[0], keyValue[1]);
+            }
+        }
+
+        return parameters;
     }
 }
