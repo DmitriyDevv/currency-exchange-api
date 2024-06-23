@@ -9,9 +9,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CurrenciesDataAccess implements ActionsCurrencies<Currency> {
+public class CurrenciesDataAccess {
 
-    @Override
     public List<Currency> getAll() throws SQLException {
         List<Currency> currencies = new ArrayList<>();
         String sql = "SELECT ID, Code, FullName, Sign FROM Currencies";
@@ -32,7 +31,6 @@ public class CurrenciesDataAccess implements ActionsCurrencies<Currency> {
         return currencies;
     }
 
-    @Override
     public Currency getCurrencyByCode(String code) throws SQLException {
         final Currency[] currency = {null};
         String sql = "SELECT ID, Code, FullName, Sign " + "FROM Currencies " + "WHERE Code = ?";
@@ -55,7 +53,6 @@ public class CurrenciesDataAccess implements ActionsCurrencies<Currency> {
         return currency[0];
     }
 
-    @Override
     public void addCurrency(Currency currency) throws SQLException {
         String sql = "INSERT INTO Currencies (Code, FullName, Sign) VALUES (?, ?, ?)";
         DBManager.execute(
