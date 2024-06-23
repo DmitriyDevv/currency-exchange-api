@@ -1,5 +1,6 @@
 package com.DmitriyDevv.servlets;
 
+import com.DmitriyDevv.dto.ErrorMessage;
 import com.DmitriyDevv.dto.ResponseData;
 import com.DmitriyDevv.exceptions.RequestException;
 import com.google.gson.Gson;
@@ -20,12 +21,14 @@ public class ServletHelper {
 
     public static void handleException(HttpServletResponse response, Exception e) {
         if (e instanceof RequestException ex) {
-            sendResponse(response, new ResponseData<>(ex.getMessage(), ex.getCode()));
+            sendResponse(
+                    response, new ResponseData<>(new ErrorMessage(ex.getMessage()), ex.getCode()));
         } else if (e instanceof SQLException) {
             sendResponse(
                     response,
                     new ResponseData<>(
-                            "Database error", HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
+                            new ErrorMessage("Database error"),
+                            HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
         }
     }
 
