@@ -114,6 +114,6 @@ public class ExchangeRatesDataAccess {
         String baseFullName = rs.getString(fullName);
         String baseSign = rs.getString(sign);
 
-        return new Currency(baseID, baseCode, baseFullName, baseSign);
+        return new Currency(baseID, baseFullName, baseCode, baseSign);
     }
 }
