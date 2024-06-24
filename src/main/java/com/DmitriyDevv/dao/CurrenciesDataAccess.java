@@ -61,7 +61,7 @@ public class CurrenciesDataAccess {
                         ps.setString(1, currency.code());
                         ps.setString(2, currency.name());
                         ps.setString(3, currency.sign());
-                        ps.execute();
+                        ps.executeUpdate();
                     }
                 });
     }

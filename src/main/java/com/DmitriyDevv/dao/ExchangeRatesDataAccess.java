@@ -101,6 +101,7 @@ public class ExchangeRatesDataAccess {
                         ps.setInt(1, baseCurrencyId);
                         ps.setInt(2, targetCurrencyId);
                         ps.setBigDecimal(3, rate);
+                        ps.executeUpdate();
                     }
                 });
     }

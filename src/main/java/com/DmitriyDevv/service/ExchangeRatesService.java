@@ -8,6 +8,8 @@ import com.DmitriyDevv.exceptions.RequestException;
 
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.sqlite.SQLiteErrorCode;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.sql.SQLException;
@@ -85,7 +87,17 @@ public class ExchangeRatesService {
         Currency baseCurrency = CurrenciesService.getCurrencyByCode(baseCurrencyCode);
         Currency targetCurrency = CurrenciesService.getCurrencyByCode(targetCurrencyCode);
 
-        exchangeRatesDataAccess.addExchangeRate(baseCurrency.Id(), targetCurrency.Id(), rate);
+        try {
+            exchangeRatesDataAccess.addExchangeRate(baseCurrency.Id(), targetCurrency.Id(), rate);
+        } catch (SQLException e) {
+            if (e.getErrorCode() == SQLiteErrorCode.SQLITE_CONSTRAINT.code) {
+                throw new RequestException(
+                        "A currency pair with this code already exists",
+                        HttpServletResponse.SC_CONFLICT);
+            } else {
+                throw new SQLException();
+            }
+        }
     }
 
     public static void updateRate(String currencyPair, String newRate) throws SQLException {
