@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.math.BigDecimal;
 import java.sql.SQLException;
 
 @WebServlet("/exchangeRates")
@@ -32,7 +31,7 @@ public class ExchangeRates extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         String baseCurrencyCode = request.getParameter("baseCurrencyCode");
         String targetCurrencyCode = request.getParameter("targetCurrencyCode");
-        BigDecimal rate = new BigDecimal(request.getParameter("rate"));
+        String rate = request.getParameter("rate");
 
         try {
             ExchangeRatesService.addExchangeRate(baseCurrencyCode, targetCurrencyCode, rate);

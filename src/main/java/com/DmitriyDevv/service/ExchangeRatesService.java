@@ -74,21 +74,20 @@ public class ExchangeRatesService {
     }
 
     public static void addExchangeRate(
-            String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate)
-            throws SQLException {
-        if (baseCurrencyCode.isEmpty()
-                || targetCurrencyCode.isEmpty()
-                || rate == null
-                || rate.compareTo(BigDecimal.ZERO) < 0) {
-            throw new RequestException(
-                    "The required form field is missing", HttpServletResponse.SC_BAD_REQUEST);
+            String baseCurrencyCode, String targetCurrencyCode, String rate) throws SQLException {
+
+        BigDecimal newRate;
+        try {
+            newRate = new BigDecimal(rate);
+        } catch (Exception e) {
+            throw new RequestException("The required form field is missing", HttpServletResponse.SC_BAD_REQUEST);
         }
 
         Currency baseCurrency = CurrenciesService.getCurrencyByCode(baseCurrencyCode);
         Currency targetCurrency = CurrenciesService.getCurrencyByCode(targetCurrencyCode);
 
         try {
-            exchangeRatesDataAccess.addExchangeRate(baseCurrency.Id(), targetCurrency.Id(), rate);
+            exchangeRatesDataAccess.addExchangeRate(baseCurrency.Id(), targetCurrency.Id(), newRate);
         } catch (SQLException e) {
             if (e.getErrorCode() == SQLiteErrorCode.SQLITE_CONSTRAINT.code) {
                 throw new RequestException(
