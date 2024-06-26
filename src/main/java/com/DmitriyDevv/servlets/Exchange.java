@@ -19,7 +19,7 @@ public class Exchange extends HttpServlet {
         try {
             String from = request.getParameter("from");
             String to = request.getParameter("to");
-            double amount = Double.parseDouble(request.getParameter("amount"));
+            String amount = request.getParameter("amount");
             ServletHelper.sendResponse(
                     response,
                     new ResponseData<>(

@@ -1,5 +1,7 @@
 package com.DmitriyDevv.service;
 
+import static com.DmitriyDevv.service.ServiceHelper.*;
+
 import com.DmitriyDevv.dao.CurrenciesDataAccess;
 import com.DmitriyDevv.dto.Currency;
 import com.DmitriyDevv.exceptions.RequestException;
@@ -20,7 +22,7 @@ public class CurrenciesService {
     }
 
     public static Currency getCurrencyByCode(String code) throws SQLException {
-        if (code.isEmpty()) {
+        if (!isValidCurrencyCode(code)) {
             throw new RequestException(
                     "The currency code is missing", HttpServletResponse.SC_BAD_REQUEST);
         }
@@ -36,7 +38,9 @@ public class CurrenciesService {
     }
 
     public static void addCurrency(String name, String code, String sign) throws SQLException {
-        if (name.isEmpty() || code.isEmpty() || sign.isEmpty()) {
+        if (!isValidCurrencyName(name)
+                || !isValidCurrencyCode(code)
+                || !isValidCurrencySing(sign)) {
             throw new RequestException(
                     "The required form field is missing", HttpServletResponse.SC_BAD_REQUEST);
         }

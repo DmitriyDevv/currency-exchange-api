@@ -1,5 +1,7 @@
 package com.DmitriyDevv.service;
 
+import static com.DmitriyDevv.service.ServiceHelper.*;
+
 import com.DmitriyDevv.dao.CurrenciesDataAccess;
 import com.DmitriyDevv.dao.ExchangeRatesDataAccess;
 import com.DmitriyDevv.dto.Currency;
@@ -32,7 +34,7 @@ public class ExchangeRatesService {
     }
 
     public static ExchangeRate getExchangeRate(String currencyPair) throws SQLException {
-        if (currencyPair.length() != 6) {
+        if (!isValidCurrencyPair(currencyPair)) {
             throw new RequestException(
                     "Incorrect entry of currency pairs", HttpServletResponse.SC_BAD_REQUEST);
         }
@@ -76,18 +78,18 @@ public class ExchangeRatesService {
     public static void addExchangeRate(
             String baseCurrencyCode, String targetCurrencyCode, String rate) throws SQLException {
 
-        BigDecimal newRate;
-        try {
-            newRate = new BigDecimal(rate);
-        } catch (Exception e) {
-            throw new RequestException("The required form field is missing", HttpServletResponse.SC_BAD_REQUEST);
+        if (!isValidNumber(rate)) {
+            throw new RequestException(
+                    "Rate is not valid: must be a positive number",
+                    HttpServletResponse.SC_BAD_REQUEST);
         }
 
         Currency baseCurrency = CurrenciesService.getCurrencyByCode(baseCurrencyCode);
         Currency targetCurrency = CurrenciesService.getCurrencyByCode(targetCurrencyCode);
 
         try {
-            exchangeRatesDataAccess.addExchangeRate(baseCurrency.Id(), targetCurrency.Id(), newRate);
+            exchangeRatesDataAccess.addExchangeRate(
+                    baseCurrency.Id(), targetCurrency.Id(), new BigDecimal(rate));
         } catch (SQLException e) {
             if (e.getErrorCode() == SQLiteErrorCode.SQLITE_CONSTRAINT.code) {
                 throw new RequestException(
