@@ -112,8 +112,8 @@ public class ExchangeRatesService {
         }
 
         exchangeRatesDataAccess.updateRate(
-                exchangeRateDto.baseCurrencyDto().Id(),
-                exchangeRateDto.targetCurrencyDto().Id(),
+                exchangeRateDto.baseCurrency().Id(),
+                exchangeRateDto.targetCurrency().Id(),
                 new BigDecimal(newRate));
     }
 

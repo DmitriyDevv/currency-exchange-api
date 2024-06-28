@@ -31,10 +31,10 @@ public class ExchangeService {
                         .setScale(2, RoundingMode.HALF_UP);
 
         return new ExchangeResponseDto(
-                exchangeRateDto.baseCurrencyDto(),
-                exchangeRateDto.targetCurrencyDto(),
+                exchangeRateDto.baseCurrency(),
+                exchangeRateDto.targetCurrency(),
                 exchangeRateDto.rate(),
                 Double.parseDouble(amount),
-                convertedAmount);
+                String.valueOf(convertedAmount));
     }
 }

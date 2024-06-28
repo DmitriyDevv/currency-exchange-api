@@ -3,8 +3,8 @@ package com.DmitriyDevv.dto;
 import java.math.BigDecimal;
 
 public record ExchangeResponseDto(
-        CurrencyDto baseCurrencyDto,
-        CurrencyDto targetCurrencyDto,
+        CurrencyDto baseCurrency,
+        CurrencyDto targetCurrency,
         BigDecimal rate,
         double amount,
-        BigDecimal convertedAmount) {}
+        String convertedAmount) {}
