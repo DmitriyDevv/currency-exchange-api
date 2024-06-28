@@ -27,12 +27,6 @@ public class ExchangeRatesService {
         return exchangeRatesDataAccess.getAll();
     }
 
-    public static ExchangeRateDto getExchangeRate(
-            String baseCurrencyCode, String targetCurrencyCode) throws SQLException {
-        String currencyPair = baseCurrencyCode + targetCurrencyCode;
-        return getExchangeRate(currencyPair);
-    }
-
     public static ExchangeRateDto getExchangeRate(String currencyPair) throws SQLException {
         if (!isValidCurrencyPair(currencyPair)) {
             throw new RequestException(
@@ -79,6 +73,11 @@ public class ExchangeRatesService {
 
     public static void addExchangeRate(
             String baseCurrencyCode, String targetCurrencyCode, String rate) throws SQLException {
+
+        if (baseCurrencyCode.equals(targetCurrencyCode)) {
+            throw new RequestException(
+                    "Error: currency codes match", HttpServletResponse.SC_BAD_REQUEST);
+        }
 
         if (!isValidNumber(rate)) {
             throw new RequestException(

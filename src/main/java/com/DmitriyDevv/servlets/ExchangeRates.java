@@ -39,7 +39,7 @@ public class ExchangeRates extends HttpServlet {
                     response,
                     new ResponseData<>(
                             ExchangeRatesService.getExchangeRate(
-                                    baseCurrencyCode, targetCurrencyCode),
+                                    baseCurrencyCode + targetCurrencyCode),
                             HttpServletResponse.SC_OK));
         } catch (RequestException | SQLException e) {
             ServletHelper.handleException(response, e);
