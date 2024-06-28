@@ -2,9 +2,9 @@ package com.DmitriyDevv.dto;
 
 import java.math.BigDecimal;
 
-public record Exchange(
-        Currency baseCurrency,
-        Currency targetCurrency,
+public record ExchangeResponseDto(
+        CurrencyDto baseCurrencyDto,
+        CurrencyDto targetCurrencyDto,
         BigDecimal rate,
         double amount,
         BigDecimal convertedAmount) {}

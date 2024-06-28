@@ -2,8 +2,8 @@ package com.DmitriyDevv.service;
 
 import static com.DmitriyDevv.service.ServiceHelper.*;
 
-import com.DmitriyDevv.dto.Exchange;
-import com.DmitriyDevv.dto.ExchangeRate;
+import com.DmitriyDevv.dto.ExchangeRateDto;
+import com.DmitriyDevv.dto.ExchangeResponseDto;
 import com.DmitriyDevv.exceptions.RequestException;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,11 +13,11 @@ import java.math.RoundingMode;
 import java.sql.SQLException;
 
 public class ExchangeService {
-    public static Exchange getExchange(
+    public static ExchangeResponseDto getExchange(
             String baseCurrencyCode, String targetCurrencyCode, String amount) throws SQLException {
 
         String currencyPair = baseCurrencyCode + targetCurrencyCode;
-        ExchangeRate exchangeRate = ExchangeRatesService.getExchangeRate(currencyPair);
+        ExchangeRateDto exchangeRateDto = ExchangeRatesService.getExchangeRate(currencyPair);
         if (!isValidNumber(amount)) {
             throw new RequestException(
                     "Amount is not valid: must be a positive number",
@@ -25,15 +25,15 @@ public class ExchangeService {
         }
 
         BigDecimal convertedAmount =
-                exchangeRate
+                exchangeRateDto
                         .rate()
                         .multiply(new BigDecimal(amount))
                         .setScale(2, RoundingMode.HALF_UP);
 
-        return new Exchange(
-                exchangeRate.baseCurrency(),
-                exchangeRate.targetCurrency(),
-                exchangeRate.rate(),
+        return new ExchangeResponseDto(
+                exchangeRateDto.baseCurrencyDto(),
+                exchangeRateDto.targetCurrencyDto(),
+                exchangeRateDto.rate(),
                 Double.parseDouble(amount),
                 convertedAmount);
     }

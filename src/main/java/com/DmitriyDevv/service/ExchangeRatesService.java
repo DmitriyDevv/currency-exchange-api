@@ -4,8 +4,8 @@ import static com.DmitriyDevv.service.ServiceHelper.*;
 
 import com.DmitriyDevv.dao.CurrenciesDataAccess;
 import com.DmitriyDevv.dao.ExchangeRatesDataAccess;
-import com.DmitriyDevv.dto.Currency;
-import com.DmitriyDevv.dto.ExchangeRate;
+import com.DmitriyDevv.dto.CurrencyDto;
+import com.DmitriyDevv.dto.ExchangeRateDto;
 import com.DmitriyDevv.exceptions.RequestException;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,17 +23,17 @@ public class ExchangeRatesService {
     private static final ExchangeRatesDataAccess exchangeRatesDataAccess =
             new ExchangeRatesDataAccess();
 
-    public static List<ExchangeRate> getExchangeRatesList() throws SQLException {
+    public static List<ExchangeRateDto> getExchangeRatesList() throws SQLException {
         return exchangeRatesDataAccess.getAll();
     }
 
-    public static ExchangeRate getExchangeRate(String baseCurrencyCode, String targetCurrencyCode)
-            throws SQLException {
+    public static ExchangeRateDto getExchangeRate(
+            String baseCurrencyCode, String targetCurrencyCode) throws SQLException {
         String currencyPair = baseCurrencyCode + targetCurrencyCode;
         return getExchangeRate(currencyPair);
     }
 
-    public static ExchangeRate getExchangeRate(String currencyPair) throws SQLException {
+    public static ExchangeRateDto getExchangeRate(String currencyPair) throws SQLException {
         if (!isValidCurrencyPair(currencyPair)) {
             throw new RequestException(
                     "Incorrect entry of currency pairs", HttpServletResponse.SC_BAD_REQUEST);
@@ -42,32 +42,34 @@ public class ExchangeRatesService {
         String baseCurrencyCode = currencyPair.substring(0, 3);
         String targetCurrencyCode = currencyPair.substring(3, 6);
 
-        Currency baseCurrency = currenciesDataAccess.getCurrencyByCode(baseCurrencyCode);
-        Currency targetCurrency = currenciesDataAccess.getCurrencyByCode(targetCurrencyCode);
+        CurrencyDto baseCurrencyDto = currenciesDataAccess.getCurrencyByCode(baseCurrencyCode);
+        CurrencyDto targetCurrencyDto = currenciesDataAccess.getCurrencyByCode(targetCurrencyCode);
 
-        if (baseCurrency == null || targetCurrency == null) {
+        if (baseCurrencyDto == null || targetCurrencyDto == null) {
             throw new RequestException(
                     "The exchange rate for the pair was not found",
                     HttpServletResponse.SC_NOT_FOUND);
         }
 
-        ExchangeRate directExchangeRate =
-                exchangeRatesDataAccess.getExchangeRateForPair(baseCurrency, targetCurrency);
+        ExchangeRateDto directExchangeRateDto =
+                exchangeRatesDataAccess.getExchangeRateForPair(baseCurrencyDto, targetCurrencyDto);
 
-        if (directExchangeRate != null) {
-            return directExchangeRate;
+        if (directExchangeRateDto != null) {
+            return directExchangeRateDto;
         }
 
-        ExchangeRate reverseExchangeRate = getReverseExchangeRate(targetCurrency, baseCurrency);
+        ExchangeRateDto reverseExchangeRateDto =
+                getReverseExchangeRate(targetCurrencyDto, baseCurrencyDto);
 
-        if (reverseExchangeRate != null) {
-            return reverseExchangeRate;
+        if (reverseExchangeRateDto != null) {
+            return reverseExchangeRateDto;
         }
 
-        ExchangeRate crossExchangeRate = getCrossExchangeRate(targetCurrency, baseCurrency);
+        ExchangeRateDto crossExchangeRateDto =
+                getCrossExchangeRate(targetCurrencyDto, baseCurrencyDto);
 
-        if (crossExchangeRate != null) {
-            return crossExchangeRate;
+        if (crossExchangeRateDto != null) {
+            return crossExchangeRateDto;
         } else {
             throw new RequestException(
                     "The exchange rate for the pair was not found",
@@ -84,12 +86,12 @@ public class ExchangeRatesService {
                     HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        Currency baseCurrency = CurrenciesService.getCurrencyByCode(baseCurrencyCode);
-        Currency targetCurrency = CurrenciesService.getCurrencyByCode(targetCurrencyCode);
+        CurrencyDto baseCurrencyDto = CurrenciesService.getCurrencyByCode(baseCurrencyCode);
+        CurrencyDto targetCurrencyDto = CurrenciesService.getCurrencyByCode(targetCurrencyCode);
 
         try {
             exchangeRatesDataAccess.addExchangeRate(
-                    baseCurrency.Id(), targetCurrency.Id(), new BigDecimal(rate));
+                    baseCurrencyDto.Id(), targetCurrencyDto.Id(), new BigDecimal(rate));
         } catch (SQLException e) {
             if (e.getErrorCode() == SQLiteErrorCode.SQLITE_CONSTRAINT.code) {
                 throw new RequestException(
@@ -102,7 +104,7 @@ public class ExchangeRatesService {
     }
 
     public static void updateRate(String currencyPair, String newRate) throws SQLException {
-        ExchangeRate exchangeRate = getExchangeRate(currencyPair);
+        ExchangeRateDto exchangeRateDto = getExchangeRate(currencyPair);
 
         if (newRate == null || newRate.isEmpty()) {
             throw new RequestException(
@@ -111,43 +113,43 @@ public class ExchangeRatesService {
         }
 
         exchangeRatesDataAccess.updateRate(
-                exchangeRate.baseCurrency().Id(),
-                exchangeRate.targetCurrency().Id(),
+                exchangeRateDto.baseCurrencyDto().Id(),
+                exchangeRateDto.targetCurrencyDto().Id(),
                 new BigDecimal(newRate));
     }
 
-    private static ExchangeRate getReverseExchangeRate(
-            Currency targetCurrency, Currency baseCurrency) throws SQLException {
-        ExchangeRate reverseExchangeRate =
-                exchangeRatesDataAccess.getExchangeRateForPair(targetCurrency, baseCurrency);
+    private static ExchangeRateDto getReverseExchangeRate(
+            CurrencyDto targetCurrencyDto, CurrencyDto baseCurrencyDto) throws SQLException {
+        ExchangeRateDto reverseExchangeRateDto =
+                exchangeRatesDataAccess.getExchangeRateForPair(targetCurrencyDto, baseCurrencyDto);
 
-        if (reverseExchangeRate != null) {
-            BigDecimal reverseRate = calculateReverseCourse(reverseExchangeRate.rate());
+        if (reverseExchangeRateDto != null) {
+            BigDecimal reverseRate = calculateReverseCourse(reverseExchangeRateDto.rate());
 
-            return new ExchangeRate(
-                    reverseExchangeRate.id(), baseCurrency, targetCurrency, reverseRate);
+            return new ExchangeRateDto(
+                    reverseExchangeRateDto.id(), baseCurrencyDto, targetCurrencyDto, reverseRate);
         }
 
         return null;
     }
 
-    private static ExchangeRate getCrossExchangeRate(Currency baseCurrency, Currency targetCurrency)
-            throws SQLException {
+    private static ExchangeRateDto getCrossExchangeRate(
+            CurrencyDto baseCurrencyDto, CurrencyDto targetCurrencyDto) throws SQLException {
 
-        Currency usd = currenciesDataAccess.getCurrencyByCode("USD");
+        CurrencyDto usd = currenciesDataAccess.getCurrencyByCode("USD");
 
         if (usd != null) {
-            ExchangeRate usdBaseCurrency =
-                    exchangeRatesDataAccess.getExchangeRateForPair(usd, baseCurrency);
-            ExchangeRate usdTargetCurrency =
-                    exchangeRatesDataAccess.getExchangeRateForPair(usd, targetCurrency);
+            ExchangeRateDto usdBaseCurrency =
+                    exchangeRatesDataAccess.getExchangeRateForPair(usd, baseCurrencyDto);
+            ExchangeRateDto usdTargetCurrency =
+                    exchangeRatesDataAccess.getExchangeRateForPair(usd, targetCurrencyDto);
 
             if (usdBaseCurrency != null && usdTargetCurrency != null) {
                 BigDecimal crossRate =
                         calculateReverseCourse(usdBaseCurrency.rate())
                                 .multiply(usdTargetCurrency.rate());
 
-                return new ExchangeRate(200, baseCurrency, targetCurrency, crossRate);
+                return new ExchangeRateDto(200, baseCurrencyDto, targetCurrencyDto, crossRate);
             }
         }
         return null;

@@ -1,6 +1,6 @@
 package com.DmitriyDevv.dao;
 
-import com.DmitriyDevv.dto.Currency;
+import com.DmitriyDevv.dto.CurrencyDto;
 import com.DmitriyDevv.sql.DBManager;
 
 import java.sql.PreparedStatement;
@@ -11,8 +11,8 @@ import java.util.List;
 
 public class CurrenciesDataAccess {
 
-    public List<Currency> getAll() throws SQLException {
-        List<Currency> currencies = new ArrayList<>();
+    public List<CurrencyDto> getAll() throws SQLException {
+        List<CurrencyDto> currencies = new ArrayList<>();
         String sql = "SELECT ID, Code, FullName, Sign FROM Currencies";
 
         DBManager.execute(
@@ -24,15 +24,15 @@ public class CurrenciesDataAccess {
                             String code = rs.getString("Code");
                             String fullName = rs.getString("FullName");
                             String sign = rs.getString("Sign");
-                            currencies.add(new Currency(id, fullName, code, sign));
+                            currencies.add(new CurrencyDto(id, fullName, code, sign));
                         }
                     }
                 });
         return currencies;
     }
 
-    public Currency getCurrencyByCode(String code) throws SQLException {
-        final Currency[] currency = {null};
+    public CurrencyDto getCurrencyByCode(String code) throws SQLException {
+        final CurrencyDto[] currencyDto = {null};
         String sql = "SELECT ID, Code, FullName, Sign " + "FROM Currencies " + "WHERE Code = ?";
 
         DBManager.execute(
@@ -45,22 +45,22 @@ public class CurrenciesDataAccess {
                                 String getCode = rs.getString("Code");
                                 String fullName = rs.getString("FullName");
                                 String sign = rs.getString("Sign");
-                                currency[0] = (new Currency(id, fullName, getCode, sign));
+                                currencyDto[0] = (new CurrencyDto(id, fullName, getCode, sign));
                             }
                         }
                     }
                 });
-        return currency[0];
+        return currencyDto[0];
     }
 
-    public void addCurrency(Currency currency) throws SQLException {
+    public void addCurrency(CurrencyDto currencyDto) throws SQLException {
         String sql = "INSERT INTO Currencies (Code, FullName, Sign) VALUES (?, ?, ?)";
         DBManager.execute(
                 conn -> {
                     try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                        ps.setString(1, currency.code());
-                        ps.setString(2, currency.name());
-                        ps.setString(3, currency.sign());
+                        ps.setString(1, currencyDto.code());
+                        ps.setString(2, currencyDto.name());
+                        ps.setString(3, currencyDto.sign());
                         ps.executeUpdate();
                     }
                 });

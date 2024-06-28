@@ -1,7 +1,7 @@
 package com.DmitriyDevv.dao;
 
-import com.DmitriyDevv.dto.Currency;
-import com.DmitriyDevv.dto.ExchangeRate;
+import com.DmitriyDevv.dto.CurrencyDto;
+import com.DmitriyDevv.dto.ExchangeRateDto;
 import com.DmitriyDevv.sql.DBManager;
 
 import java.math.BigDecimal;
@@ -35,18 +35,18 @@ public class ExchangeRatesDataAccess {
                 });
     }
 
-    public List<ExchangeRate> getAll() throws SQLException {
-        List<ExchangeRate> exchangeRates = new ArrayList<>();
+    public List<ExchangeRateDto> getAll() throws SQLException {
+        List<ExchangeRateDto> exchangeRateDtos = new ArrayList<>();
 
         DBManager.execute(
                 conn -> {
                     try (PreparedStatement ps = conn.prepareStatement(sqlRequestAllExchangeRates);
                             ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
-                            Currency baseCurrency =
+                            CurrencyDto baseCurrencyDto =
                                     getPrepareCurrency(
                                             rs, "BaseID", "BaseCode", "BaseFullName", "BaseSign");
-                            Currency targetCurrency =
+                            CurrencyDto targetCurrencyDto =
                                     getPrepareCurrency(
                                             rs,
                                             "TargetID",
@@ -57,37 +57,39 @@ public class ExchangeRatesDataAccess {
                             int ID = rs.getInt("Id");
                             BigDecimal rate = rs.getBigDecimal("Rate");
 
-                            exchangeRates.add(
-                                    new ExchangeRate(ID, baseCurrency, targetCurrency, rate));
+                            exchangeRateDtos.add(
+                                    new ExchangeRateDto(
+                                            ID, baseCurrencyDto, targetCurrencyDto, rate));
                         }
                     }
                 });
-        return exchangeRates;
+        return exchangeRateDtos;
     }
 
-    public ExchangeRate getExchangeRateForPair(Currency baseCurrency, Currency targetCurrency)
-            throws SQLException {
-        final ExchangeRate[] exchangeRate = {null};
+    public ExchangeRateDto getExchangeRateForPair(
+            CurrencyDto baseCurrencyDto, CurrencyDto targetCurrencyDto) throws SQLException {
+        final ExchangeRateDto[] exchangeRateDto = {null};
         String sql =
                 "SELECT * FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
 
         DBManager.execute(
                 conn -> {
                     try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                        ps.setInt(1, baseCurrency.Id());
-                        ps.setInt(2, targetCurrency.Id());
+                        ps.setInt(1, baseCurrencyDto.Id());
+                        ps.setInt(2, targetCurrencyDto.Id());
                         try (ResultSet rs = ps.executeQuery()) {
                             while (rs.next()) {
                                 int ID = rs.getInt("Id");
                                 BigDecimal rate = rs.getBigDecimal("Rate");
 
-                                exchangeRate[0] =
-                                        new ExchangeRate(ID, baseCurrency, targetCurrency, rate);
+                                exchangeRateDto[0] =
+                                        new ExchangeRateDto(
+                                                ID, baseCurrencyDto, targetCurrencyDto, rate);
                             }
                         }
                     }
                 });
-        return exchangeRate[0];
+        return exchangeRateDto[0];
     }
 
     public void addExchangeRate(int baseCurrencyId, int targetCurrencyId, BigDecimal rate)
@@ -106,7 +108,7 @@ public class ExchangeRatesDataAccess {
                 });
     }
 
-    private Currency getPrepareCurrency(
+    private CurrencyDto getPrepareCurrency(
             ResultSet rs, String ID, String code, String fullName, String sign)
             throws SQLException {
 
@@ -115,6 +117,6 @@ public class ExchangeRatesDataAccess {
         String baseFullName = rs.getString(fullName);
         String baseSign = rs.getString(sign);
 
-        return new Currency(baseID, baseFullName, baseCode, baseSign);
+        return new CurrencyDto(baseID, baseFullName, baseCode, baseSign);
     }
 }

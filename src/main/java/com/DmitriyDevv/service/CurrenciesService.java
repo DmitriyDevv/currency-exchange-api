@@ -3,7 +3,7 @@ package com.DmitriyDevv.service;
 import static com.DmitriyDevv.service.ServiceHelper.*;
 
 import com.DmitriyDevv.dao.CurrenciesDataAccess;
-import com.DmitriyDevv.dto.Currency;
+import com.DmitriyDevv.dto.CurrencyDto;
 import com.DmitriyDevv.exceptions.RequestException;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,24 +17,24 @@ public class CurrenciesService {
 
     private static final CurrenciesDataAccess currencies = new CurrenciesDataAccess();
 
-    public static List<Currency> getCurrencyList() throws SQLException {
+    public static List<CurrencyDto> getCurrencyList() throws SQLException {
         return currencies.getAll();
     }
 
-    public static Currency getCurrencyByCode(String code) throws SQLException {
+    public static CurrencyDto getCurrencyByCode(String code) throws SQLException {
         if (!isValidCurrencyCode(code)) {
             throw new RequestException(
                     "The currency code is missing", HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        Currency currency = currencies.getCurrencyByCode(code);
+        CurrencyDto currencyDto = currencies.getCurrencyByCode(code);
 
-        if (currency == null) {
+        if (currencyDto == null) {
             throw new RequestException(
                     "The currency was not found", HttpServletResponse.SC_NOT_FOUND);
         }
 
-        return currency;
+        return currencyDto;
     }
 
     public static void addCurrency(String name, String code, String sign) throws SQLException {
@@ -46,8 +46,8 @@ public class CurrenciesService {
         }
 
         try {
-            Currency newCurrency = new Currency(0, name, code, sign);
-            currencies.addCurrency(newCurrency);
+            CurrencyDto newCurrencyDto = new CurrencyDto(0, name, code, sign);
+            currencies.addCurrency(newCurrencyDto);
         } catch (SQLException e) {
             if (e.getErrorCode() == SQLiteErrorCode.SQLITE_CONSTRAINT.code) {
                 throw new RequestException(
