@@ -9,6 +9,7 @@ import com.DmitriyDevv.exceptions.RequestException;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.SQLException;
 
 public class ExchangeService {
@@ -23,7 +24,11 @@ public class ExchangeService {
                     HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        BigDecimal convertedAmount = exchangeRate.rate().multiply(new BigDecimal(amount));
+        BigDecimal convertedAmount =
+                exchangeRate
+                        .rate()
+                        .multiply(new BigDecimal(amount))
+                        .setScale(2, RoundingMode.HALF_UP);
 
         return new Exchange(
                 exchangeRate.baseCurrency(),
