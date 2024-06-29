@@ -60,7 +60,7 @@ public class ExchangeRatesService {
         }
 
         ExchangeRateDto crossExchangeRateDto =
-                getCrossExchangeRate(targetCurrencyDto, baseCurrencyDto);
+                getCrossExchangeRate(baseCurrencyDto, targetCurrencyDto);
 
         if (crossExchangeRateDto != null) {
             return crossExchangeRateDto;
